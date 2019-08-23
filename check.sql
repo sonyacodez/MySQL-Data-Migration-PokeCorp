@@ -58,9 +58,3 @@ USE sql_testing;
 -- DROP TABLE town;
 -- DROP TABLE trainer;
 -- DROP TABLE pokemon_trainer;
-
-SELECT p.name, COUNT(pt.pokemon) AS count
-FROM pokemon_trainer AS pt, pokemon AS p
-WHERE p.id = pt.pokemon
-GROUP BY p.name
-ORDER BY COUNT(pt.pokemon) DESC;

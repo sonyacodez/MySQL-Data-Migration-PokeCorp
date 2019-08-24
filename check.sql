@@ -37,10 +37,6 @@ USE sql_testing;
 --     FOREIGN KEY(trainer) REFERENCES trainer (id)
 -- );
 
--- SELECT p.id FROM pokemon AS p;
--- SELECT p.name FROM pokemon AS p WHERE p.id = 2115;
--- SELECT COUNT(*) FROM pokemon_trainer;
-
 -- SELECT * FROM pokemon_type;
 -- SELECT * FROM town;
 -- SELECT * FROM pokemon;

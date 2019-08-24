@@ -93,94 +93,161 @@ const addPokemonAndTrainerData = async(data) => {
 
 // addPokemonAndTrainerData(data)
 
+// --------First Version of Heaviest Pokemon Function----------
+
+// const heaviestPokemon = async() => {
+//     let heaviestWeight = await sequelize
+//         .query(`
+//             SELECT MAX(weight) AS weight 
+//             FROM pokemon`)
+//         .spread((result, md) => result[0].weight)
+//     let query = `SELECT p.name FROM pokemon AS p WHERE p.weight = ${heaviestWeight}`
+//     let heaviestPokemon = await sequelize.query(query).spread((result, metadata) => result[0].name)
+//     return heaviestPokemon
+// }
+
+// --------Improved Heaviest Pokemon Function----------
+
 const heaviestPokemon = async() => {
     let heaviestWeight = await sequelize
         .query(`
-            SELECT MAX(weight) AS weight 
-            FROM pokemon`)
-        .spread((result, md) => result[0].weight)
-    let query = `SELECT p.name FROM pokemon AS p WHERE p.weight = ${heaviestWeight}`
-    let heaviestPokemon = await sequelize.query(query).spread((result, metadata) => result[0].name)
-    return heaviestPokemon
+            SELECT name, weight
+            FROM pokemon
+            ORDER BY weight DESC`)
+        .spread((result, md) => result[0].name)
+    return heaviestWeight
 }
 
 // heaviestPokemon()
 
+// --------First Version of findByType Function----------
+
+// const findByType = async(pokemonType) => {
+//     let pokemonTypeID = await sequelize
+//         .query(`
+//             SELECT p.id 
+//             FROM pokemon_type AS p 
+//             WHERE p.name = '${pokemonType}'`)
+//         .spread((result, md) => result[0].id)
+//     let pokemonOfType = await sequelize
+//         .query(`
+//             SELECT p.name 
+//             FROM pokemon AS p 
+//             WHERE p.type = ${pokemonTypeID}`)
+//         .spread((result, md) => result)
+//     let pokemonArray = []
+//     pokemonOfType.forEach(p => pokemonArray.push(p.name))
+//     return pokemonArray
+// }
+
+// --------Improved findByType Function----------
+
 const findByType = async(pokemonType) => {
-    let pokemonTypeID = await sequelize
-        .query(`
-            SELECT p.id 
-            FROM pokemon_type AS p 
-            WHERE p.name = '${pokemonType}'`)
-        .spread((result, md) => result[0].id)
     let pokemonOfType = await sequelize
         .query(`
-            SELECT p.name 
-            FROM pokemon AS p 
-            WHERE p.type = ${pokemonTypeID}`)
+            SELECT p.name AS name
+            FROM pokemon AS p, pokemon_type AS type 
+            WHERE type.name = '${pokemonType}'
+            AND p.type = type.id`)
         .spread((result, md) => result)
-    let pokemonArray = []
-    pokemonOfType.forEach(p => pokemonArray.push(p.name))
-    return pokemonArray
+    let pokemonNamesArray = []
+    pokemonOfType.forEach(p => pokemonNamesArray.push(p.name))
+    return pokemonNamesArray
 }
 
 // findByType("grass")
 
+// --------First Version of findOwners Function----------
+
+// const findOwners = async(pokemonName) => {
+//     let pokemonID = await sequelize
+//         .query(`
+//             SELECT p.id 
+//             FROM pokemon AS p 
+//             WHERE p.name = '${pokemonName}'`)
+//         .spread((result, md) => result[0].id)
+//     let trainersID = await sequelize
+//         .query(`
+//             SELECT pt.trainer
+//             FROM pokemon_trainer AS pt  
+//             WHERE pt.pokemon = ${pokemonID}`)
+//         .spread((result, md) => result)
+//     let trainers = await sequelize
+//         .query(`
+//             SELECT t.name, t.id
+//             FROM trainer AS t`)
+//         .spread((result, md) => result)
+//     let names = []
+//     trainersID.forEach(id => {
+//         let trainerName = trainers.find(t => t.id === id.trainer).name
+//         names.push(trainerName)
+//     })
+//     return names
+// }
+
+// --------Improved findOwners Function----------
+
 const findOwners = async(pokemonName) => {
-    let pokemonID = await sequelize
-        .query(`
-            SELECT p.id 
-            FROM pokemon AS p 
-            WHERE p.name = '${pokemonName}'`)
-        .spread((result, md) => result[0].id)
-    let trainersID = await sequelize
-        .query(`
-            SELECT pt.trainer
-            FROM pokemon_trainer AS pt  
-            WHERE pt.pokemon = ${pokemonID}`)
-        .spread((result, md) => result)
     let trainers = await sequelize
         .query(`
-            SELECT t.name, t.id
-            FROM trainer AS t`)
+            SELECT t.name
+            FROM trainer AS t, pokemon_trainer AS pt, pokemon AS p
+            WHERE p.name = '${pokemonName}'
+            AND pt.pokemon = p.id
+            AND t.id = pt.trainer`)
         .spread((result, md) => result)
     let names = []
-    trainersID.forEach(id => {
-        let trainerName = trainers.find(t => t.id === id.trainer).name
-        names.push(trainerName)
-    })
+    trainers.forEach(t => names.push(t.name))
     return names
 }
 
 // findOwners("gengar")
 
-const findRoster = async(trainerName) => {
-    let trainerID = await sequelize
-        .query(`
-            SELECT t.id 
-            FROM trainer AS t 
-            WHERE t.name = '${trainerName}'`)
-        .spread((result, md) => result[0].id)
-    let pokemonsID = await sequelize
-        .query(`
-            SELECT pt.pokemon
-            FROM pokemon_trainer AS pt  
-            WHERE pt.trainer = ${trainerID}`)
-        .spread((result, md) => result)
+// --------First Version of findPokemonOfOwner Function----------
+
+// const findPokemonOfOwner = async(trainerName) => {
+//     let trainerID = await sequelize
+//         .query(`
+//             SELECT t.id 
+//             FROM trainer AS t 
+//             WHERE t.name = '${trainerName}'`)
+//         .spread((result, md) => result[0].id)
+//     let pokemonsID = await sequelize
+//         .query(`
+//             SELECT pt.pokemon
+//             FROM pokemon_trainer AS pt  
+//             WHERE pt.trainer = ${trainerID}`)
+//         .spread((result, md) => result)
+//     let pokemon = await sequelize
+//         .query(`
+//             SELECT p.name, p.id
+//             FROM pokemon AS p`)
+//         .spread((result, md) => result)
+//     let names = []
+//     pokemonsID.forEach(id => {
+//         let pokemonName = pokemon.find(p => p.id === id.pokemon).name
+//         names.push(pokemonName)
+//     })
+//     return names
+// }
+
+// --------Improved findOwners Function----------
+
+const findPokemonOfOwner = async(trainerName) => {
     let pokemon = await sequelize
         .query(`
-            SELECT p.name, p.id
-            FROM pokemon AS p`)
+            SELECT p.name
+            FROM trainer AS t, pokemon_trainer AS pt, pokemon AS p
+            WHERE t.name = '${trainerName}'
+            AND pt.pokemon = p.id
+            AND t.id = pt.trainer`)
         .spread((result, md) => result)
     let names = []
-    pokemonsID.forEach(id => {
-        let pokemonName = pokemon.find(p => p.id === id.pokemon).name
-        names.push(pokemonName)
-    })
+    pokemon.forEach(p => names.push(p.name))
     return names
 }
 
-// findRoster("Loga")
+// findPokemonOfOwner("Loga")
 
 const pokemonWithMostOwners = async() => {
     let pokemon = await sequelize

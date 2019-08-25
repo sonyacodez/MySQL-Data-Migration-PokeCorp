@@ -37,6 +37,7 @@ const addPokemonType = async(data) => {
         await sequelize.query(query)
     }
 }
+
 const addTown = async(data) => {
     const allTowns = findAllTowns(data)
     const allTownsArray = Object.keys(allTowns)
